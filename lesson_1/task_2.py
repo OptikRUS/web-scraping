@@ -24,5 +24,3 @@ def get_weather_in_city():
         return f"In {weather['city']} {weather['weather_name']}({weather['description']}).\n" \
                f"Main: {weather['main']}\nWind: {weather['wind']}"
     return f'{response.status_code}'
-
-print(get_weather_in_city())
