@@ -1,5 +1,4 @@
 import json
-from time import sleep
 from pprint import pprint
 
 from vacanсies_scrapper import VacancyScrapper
@@ -44,6 +43,7 @@ class SuperJobVacancyScrapper(VacancyScrapper):
             info['vacancy_name'] = self.get_vacancy_name(element)
             info['vacancy_payments'] = self.get_vacancy_pay(element)
             info['vacancy_url'] = self.get_vacancy_url(element)
+            info['vacancy_site'] = 'www.superjob.ru'
 
         except ValueError as e:
             print(e)
@@ -61,25 +61,17 @@ class SuperJobVacancyScrapper(VacancyScrapper):
         for element in vacancy_elements:
             info = self.get_info_from_element(element)
             pprint(info)
-            self.all_vacancy.append(info)
+            if info['vacancy_name']:
+                self.all_vacancy.append(info)
 
     def save_vacancy_info(self):
         with open(PARAMS['keywords'], 'w', encoding='utf-8') as f:
             json.dump(self.all_vacancy, f, indent=4)
 
-    def run(self, page_count):
-        self.process_page(params=self.start_params)
-        for page_number in range(1, int(page_count)):
-            print(f'page {page_number}')
-            params = self.start_params
-            params['page'] = page_number
-            self.process_page(params=params)
-            sleep(5)
-
 
 if __name__ == "__main__":
     PARAMS['keywords'] = input('Job title: ')
     page_count = input('number of pages: ')
-    scraper = SuperJobVacancyScrapper(url=URL, params=PARAMS, headers=HEADERS)
-    scraper.run(page_count)
+    scraper = SuperJobVacancyScrapper(url=URL, params=PARAMS, headers=HEADERS, page_count=page_count)
+    scraper.run()
     scraper.save_vacancy_info()
