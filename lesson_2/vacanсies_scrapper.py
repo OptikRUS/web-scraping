@@ -96,17 +96,19 @@ class VacancyScrapper:
             pprint(info)
             self.all_vacancy.append(info)
 
-    def run(self):
+    def get_total_page(self):
         html_string = self.get_html_string(params=self.start_params)
         soup = VacancyScrapper.get_dom(html_string)
         try:
-            last_page = int(soup.find_all('a', attrs={'data-qa': 'pager-page'})[-1].text)
-            print(f'total pages: {last_page}')
+            return int(soup.find_all('a', attrs={'data-qa': 'pager-page'})[-1].text)
         except IndexError as e:
             print('One page')
-            last_page = 1
+            return 1
+
+    def run(self):
+        page = self.get_total_page()
         self.process_page(params=self.start_params)
-        for page_number in range(1, last_page):
+        for page_number in range(1, page):
             print(f'page {page_number}')
             params = self.start_params
             params['page'] = page_number
