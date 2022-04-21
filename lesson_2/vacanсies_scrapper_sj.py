@@ -1,4 +1,5 @@
 import json
+import re
 from pprint import pprint
 
 from vacanсies_scrapper import VacancyScrapper
@@ -24,6 +25,37 @@ class SuperJobVacancyScrapper(VacancyScrapper):
             return zp.findChild('span', attrs={'class': '_4Gt5t _2jvwc f-test-text-company-item-salary'}).text
         return None
 
+    @staticmethod
+    def compile_str(str_zp):
+        return re.compile(r'\d+\xa0\d+|\d+').findall(str_zp)[0].encode("ascii", "ignore").decode()
+
+    def compile_payment(self, str_zp):
+        if str_zp:
+            zp_charcode = str_zp[str_zp.rfind(' ') + 1:]
+            if str_zp.startswith('от'):
+                min_zp = SuperJobVacancyScrapper.compile_str(str_zp)
+                max_zp = None
+                return [min_zp, max_zp, zp_charcode]
+            elif str_zp.startswith('до'):
+                min_zp = None
+                max_zp = SuperJobVacancyScrapper.compile_str(str_zp)
+                return [min_zp, max_zp, zp_charcode]
+            elif str_zp.startswith('По'):
+                min_zp = None
+                max_zp = 'По договорённости'
+                return [min_zp, max_zp]
+            elif re.search(r'\d+', str_zp):
+                min_zp = None
+                max_zp = SuperJobVacancyScrapper.compile_str(str_zp)
+                return [min_zp, max_zp, zp_charcode]
+            else:
+                range_zp = re.split(r'—', str_zp)
+                min_zp = re.compile(r'\d+\xa0\d+|\d+').findall(range_zp[0])[0].encode("ascii", "ignore").decode()
+                max_zp = re.compile(r'\d+\xa0\d+|\d+').findall(range_zp[1])[0].encode("ascii", "ignore").decode()
+                return [min_zp, max_zp, zp_charcode]
+        else:
+            return None
+
     def get_vacancy_description(self, element):
         span = element.find('span', attrs={'class': '_1AFgi _4uUzb _1TcZY mO3i1 dAWx1 Zruy6'})
         if span:
@@ -36,15 +68,22 @@ class SuperJobVacancyScrapper(VacancyScrapper):
             return 'https://www.superjob.ru' + span.a['href']
         return None
 
+    def get_vacancy_employer(self, element):
+        employer_element = element.findChild('span', attrs={'class': '_3nMqD f-test-text-vacancy-item-company-name '
+                                                                     '_4uUzb _1TcZY mO3i1 dAWx1 Zruy6'})
+        if employer_element:
+            return employer_element.text
+        return None
+
     def get_info_from_element(self, element):
         info = {}
         try:
-            info['description'] = self.get_vacancy_description(element)
+            info['vacancy_payments'] = self.compile_payment(self.get_vacancy_pay(element))
             info['vacancy_name'] = self.get_vacancy_name(element)
-            info['vacancy_payments'] = self.get_vacancy_pay(element)
+            info['requirements'] = self.get_vacancy_description(element)
             info['vacancy_url'] = self.get_vacancy_url(element)
+            info['employer'] = self.get_vacancy_employer(element)
             info['vacancy_site'] = 'www.superjob.ru'
-
         except ValueError as e:
             print(e)
         return info
@@ -60,8 +99,9 @@ class SuperJobVacancyScrapper(VacancyScrapper):
 
         for element in vacancy_elements:
             info = self.get_info_from_element(element)
-            pprint(info)
-            if info['vacancy_name']:
+            if info['employer'] and info['vacancy_name']:
+                pprint(info)
+                pprint(info['employer'])
                 self.all_vacancy.append(info)
 
     def save_vacancy_info(self):

@@ -97,9 +97,9 @@ class VacancyScrapper:
             child = element.findChild('a', attrs={'data-qa': 'vacancy-serp__vacancy-title'})
             if child:
                 info['vacancy_name'] = self.get_vacancy_name(element)
+                info['requirements'] = self.get_vacancy_requirements(element)
                 info['vacancy_url'] = self.get_vacancy_url(element)
                 info['employer'] = self.get_vacancy_employer(element)
-                info['requirements'] = self.get_vacancy_requirements(element)
                 info['vacancy_site'] = 'hh.ru'
         except ValueError as e:
             print(e)
