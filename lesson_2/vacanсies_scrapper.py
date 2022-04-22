@@ -59,21 +59,22 @@ class VacancyScrapper:
             return pay_element.text
         return None
 
-    def compile_payment(self, str_zp):
+    @classmethod
+    def compile_payment(cls, str_zp):
         if str_zp:
             zp_charcode = str_zp[str_zp.rfind(' ') + 1:]
             if str_zp.startswith('от'):
-                min_zp = VacancyScrapper.compile_str(str_zp)
+                min_zp = cls.compile_str(str_zp)
                 max_zp = None
                 return [min_zp, max_zp, zp_charcode]
             elif str_zp.startswith('до'):
                 min_zp = None
-                max_zp = VacancyScrapper.compile_str(str_zp)
+                max_zp = cls.compile_str(str_zp)
                 return [min_zp, max_zp, zp_charcode]
             else:
                 range_zp = re.split(r' – ', str_zp)
-                min_zp = re.compile(r'\d+\u202f\d+|\d+').findall(range_zp[0])[0].encode("ascii", "ignore").decode()
-                max_zp = re.compile(r'\d+\u202f\d+|\d+').findall(range_zp[1])[0].encode("ascii", "ignore").decode()
+                min_zp = cls.compile_str(range_zp[0])
+                max_zp = cls.compile_str(range_zp[1])
                 return [min_zp, max_zp, zp_charcode]
         else:
             return None
@@ -90,7 +91,7 @@ class VacancyScrapper:
             return requirements_element.text
         return None
 
-    def get_info_from_element(self, element):
+    def get_info_from_element(self, element, site='hh.ru'):
         info = {}
         try:
             info['vacancy_payments'] = self.compile_payment(self.get_vacancy_pay(element))
@@ -100,7 +101,7 @@ class VacancyScrapper:
                 info['requirements'] = self.get_vacancy_requirements(element)
                 info['vacancy_url'] = self.get_vacancy_url(element)
                 info['employer'] = self.get_vacancy_employer(element)
-                info['vacancy_site'] = 'hh.ru'
+                info['vacancy_site'] = site
         except ValueError as e:
             print(e)
         return info
