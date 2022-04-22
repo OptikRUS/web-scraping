@@ -61,21 +61,25 @@ class VacancyScrapper:
 
     @classmethod
     def compile_payment(cls, str_zp):
+        payments = {}
         if str_zp:
-            zp_charcode = str_zp[str_zp.rfind(' ') + 1:]
+            currency = str_zp[str_zp.rfind(' ') + 1:]
             if str_zp.startswith('от'):
-                min_zp = cls.compile_str(str_zp)
-                max_zp = None
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = cls.compile_str(str_zp)
+                payments["max"] = None
+                payments['currency'] = currency
+                return payments
             elif str_zp.startswith('до'):
-                min_zp = None
-                max_zp = cls.compile_str(str_zp)
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = None
+                payments["max"] = cls.compile_str(str_zp)
+                payments['currency'] = currency
+                return payments
             else:
                 range_zp = re.split(r' – ', str_zp)
-                min_zp = cls.compile_str(range_zp[0])
-                max_zp = cls.compile_str(range_zp[1])
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = cls.compile_str(range_zp[0])
+                payments["max"] = cls.compile_str(range_zp[1])
+                payments['currency'] = currency
+                return payments
         else:
             return None
 
@@ -140,10 +144,10 @@ class VacancyScrapper:
             page = self.get_total_page()
         self.process_page(params=self.start_params)
         for page_number in range(1, page):
-            print(f'page {page_number}')
             params = self.start_params
             params['page'] = page_number
             self.process_page(params=params)
+            print(f'page {page_number} scraped')
             sleep(5)
 
 

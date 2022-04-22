@@ -2,7 +2,7 @@ import json
 import re
 from pprint import pprint
 
-from vacanсies_scrapper import VacancyScrapper
+from lesson_2.vacanсies_scrapper import VacancyScrapper
 
 URL = 'https://www.superjob.ru/vacancy/search/'
 PARAMS = {
@@ -31,29 +31,35 @@ class SuperJobVacancyScrapper(VacancyScrapper):
 
     @classmethod
     def compile_payment(cls, str_zp):
+        payments = {}
         if str_zp:
-            zp_charcode = str_zp[str_zp.rfind(' ') + 1:]
+            currency = str_zp[str_zp.rfind(' ') + 1:]
             if str_zp.startswith('от'):
-                min_zp = cls.compile_str(str_zp)
-                max_zp = None
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = cls.compile_str(str_zp)
+                payments["max"] = None
+                payments['currency'] = currency
+                return payments
             elif str_zp.startswith('до'):
-                min_zp = None
-                max_zp = cls.compile_str(str_zp)
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = None
+                payments["max"] = cls.compile_str(str_zp)
+                payments['currency'] = currency
+                return payments
             elif str_zp.startswith('По'):
-                min_zp = None
-                max_zp = 'По договорённости'
-                return [min_zp, max_zp]
+                payments["min"] = None
+                payments["max"] = 'По договорённости'
+                payments['currency'] = None
+                return payments
             elif re.search(r'\d+', str_zp).string and not ('—' in str_zp):
-                min_zp = None
-                max_zp = cls.compile_str(str_zp)
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = None
+                payments["max"] = cls.compile_str(str_zp)
+                payments['currency'] = currency
+                return payments
             else:
                 range_zp = re.split(r'—', str_zp)
-                min_zp = cls.compile_str(range_zp[0])
-                max_zp = cls.compile_str(range_zp[1])
-                return [min_zp, max_zp, zp_charcode]
+                payments["min"] = cls.compile_str(range_zp[0])
+                payments["max"] = cls.compile_str(range_zp[1])
+                payments['currency'] = currency
+                return payments
         else:
             return None
 
