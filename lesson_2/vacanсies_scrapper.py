@@ -65,19 +65,19 @@ class VacancyScrapper:
         if str_zp:
             currency = str_zp[str_zp.rfind(' ') + 1:]
             if str_zp.startswith('от'):
-                payments["min"] = cls.compile_str(str_zp)
+                payments["min"] = int(cls.compile_str(str_zp))
                 payments["max"] = None
                 payments['currency'] = currency
                 return payments
             elif str_zp.startswith('до'):
                 payments["min"] = None
-                payments["max"] = cls.compile_str(str_zp)
+                payments["max"] = int(cls.compile_str(str_zp))
                 payments['currency'] = currency
                 return payments
             else:
                 range_zp = re.split(r' – ', str_zp)
-                payments["min"] = cls.compile_str(range_zp[0])
-                payments["max"] = cls.compile_str(range_zp[1])
+                payments["min"] = int(cls.compile_str(range_zp[0]))
+                payments["max"] = int(cls.compile_str(range_zp[1]))
                 payments['currency'] = currency
                 return payments
         else:
