@@ -4,7 +4,7 @@ import requests
 
 from lxml.html import fromstring
 
-
+from lesson_4.save_news import save_news_item
 
 URL = 'https://yandex.ru/news'
 # HEADERS = {
@@ -29,8 +29,11 @@ for item in news_items:
         info['url'] = full_url[:full_url.rfind('?')]
         info['name'] = teg_a[0].xpath('./text()')[0]
         date = footer[0].xpath('./span[contains(@class, "mg-card-source__time")]/text()')[0]
-        date_format = datetime.strptime(date, '%H:%M')
-        info['date'] = date_format
+        # date_format = datetime.strptime(date, '%H:%M')
+        info['date'] = date
         info['source'] = footer[0].xpath('.//a[contains(@class, "mg-card__source-link")]/text()')[0]
 
         pprint(info)
+        save_news_item(info)
+
+print()

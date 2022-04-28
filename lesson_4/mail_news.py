@@ -4,6 +4,8 @@ import requests
 
 from lxml.html import fromstring
 
+from lesson_4.save_news import save_news_item
+
 
 def get_info_from_url(url):
     info = {}
@@ -30,4 +32,6 @@ news_links = [i.xpath('@href')[0] for i in dom.xpath(ALL_TOP_NEWS_ITEMS)]
 
 for link in news_links:
     news_info = get_info_from_url(link)
-    pprint(news_info)
+    if news_info:
+        pprint(news_info)
+        save_news_item(news_info)
