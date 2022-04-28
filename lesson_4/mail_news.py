@@ -8,15 +8,15 @@ from lxml.html import fromstring
 def get_info_from_url(url):
     info = {}
     dom = fromstring(requests.get(url, headers=HEADERS).text)
-    item = dom.xpath('//div[contains(@class, "article js-article js-module")]')[0]
-    info['source'] = item.xpath('//span[@class="note"]//span[@class="link__text"]/text()')[0]
-    info['name'] = item.xpath('//h1[contains(@class, "hdr__inner")]/text()')[0]
-    date = item.xpath('//span[@datetime]')[0].xpath('@datetime')[0]
-    date_format = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%z')
-    info['date'] = date_format
-    info['url'] = url
-
-    return info
+    item = dom.xpath('//div[contains(@class, "article js-article js-module")]')
+    if item:
+        info['source'] = item[0].xpath('//span[@class="note"]//span[@class="link__text"]/text()')[0]
+        info['name'] = item[0].xpath('//h1[contains(@class, "hdr__inner")]/text()')[0]
+        date = item[0].xpath('//span[@datetime]')[0].xpath('@datetime')[0]
+        date_format = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%z')
+        info['date'] = date_format
+        info['url'] = url
+        return info
 
 
 URL = 'https://news.mail.ru/'
