@@ -12,8 +12,10 @@ if __name__ == "__main__":
 
     process = CrawlerProcess(settings=crawler_settings)
 
+    query = input()
+
     pkwargs = {
-        "query": "python",
+        "query": query,
     }
     process.crawl(HhruSpider, **pkwargs)
     # process.crawl(SjruSpider, **pkwargs)
