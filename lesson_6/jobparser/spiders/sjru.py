@@ -9,7 +9,7 @@ class SjruSpider(scrapy.Spider):
     name = 'sjru'
     allowed_domains = ['superjob.ru']
     start_urls = ['http://superjob.ru/']
-    max_page_number = 2
+    max_page_number = 5
 
     def __init__(self, query, **kwargs):
         super().__init__(**kwargs)

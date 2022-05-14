@@ -8,7 +8,7 @@ TEMPLATE_URL = 'https://rostov.hh.ru/search/vacancy?text='
 class HhruSpider(scrapy.Spider):
     name = 'hhru'
     allowed_domains = ['hh.ru']
-    max_page_number = 2
+    max_page_number = 30
 
     def __init__(self, query, **kwargs):
         super().__init__(**kwargs)
@@ -24,7 +24,7 @@ class HhruSpider(scrapy.Spider):
         item = JobparserItem()
         item['title'] = ' '.join(title)
         item['salary'] = salary
-        item['url'] = response.url
+        item['url'] = response.url[:response.url.rfind("?")]
         yield item
 
     def parse(self, response: TextResponse, page_number: int = 1, **kwargs):

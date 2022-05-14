@@ -19,34 +19,31 @@ class JobparserPipeline:
         self.client = MongoClient(MONGO_HOST, MONGO_PORT)
         self.db = self.client[MONGO_DB]
 
-    def process_salary(self, slary_list: list):
-        if 'от ' in slary_list:
-            min_s = slary_list[slary_list.index('от ') + 1]
+    def process_salary(self, salary_list: list):
+        if len(salary_list) == 1:
+            return None, None, None
+        elif len(salary_list) == 4:
+            return int(salary_list[0].replace('\xa0', '')), int(salary_list[1].replace('\xa0', '')), salary_list[-1]
+        elif len(salary_list) == 3:
+            zp = salary_list[2].split('\xa0')
+            return int(''.join(zp[0:2])), None, zp[2]
+        elif len(salary_list) == 7:
+            return int(salary_list[1].replace('\xa0', '')), int(salary_list[3].replace('\xa0', '')),  salary_list[-2]
+        elif len(salary_list) == 5:
+            if salary_list[0] == 'до ':
+                return None, int(salary_list[1].replace('\xa0', '')), salary_list[-2]
+            return int(salary_list[1].replace('\xa0', '')), None, salary_list[-2]
         else:
-            min_s = None
-        if ' до ' in slary_list:
-            max_s = slary_list[slary_list.index(' до ') + 1]
-        elif 'до ' in slary_list:
-            max_s = slary_list[slary_list.index('до ') + 1]
-        else:
-            max_s = None
-        if "з/п не указана" in slary_list:
-            cur = None
-        else:
-            cur = slary_list[-2]
-
-        return min_s, max_s, cur
+            return None, None, None
 
     def process_item(self, item, spider):
-        slary_min, salary_max, salary_currency = self.process_salary(item['salary'])
-        print(slary_min, salary_max, salary_currency)
-        if slary_min:
-            item['slary_min'] = slary_min
-        if salary_max:
-            item['salary_max'] = salary_max
-        if salary_currency:
-            item['salary_currency'] = salary_currency
+        salary_min, salary_max, salary_currency = self.process_salary(item['salary'])
+        item['salary_min'] = salary_min
+        item['salary_max'] = salary_max
+        item['salary_currency'] = salary_currency
+        item['site'] = spider.name
         item.pop('salary')
         collection = self.db[spider.name]
         collection.insert_one(item)
+        print(item)
         return item
