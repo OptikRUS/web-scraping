@@ -7,6 +7,11 @@ import scrapy
 
 
 class ProductparserItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    _id = scrapy.Field()
+    url = scrapy.Field()
+    title = scrapy.Field()
+    price = scrapy.Field()
+    site = scrapy.Field()
+    img_urls = scrapy.Field()
+    article = scrapy.Field()
+    params = scrapy.Field()
