@@ -1,5 +1,5 @@
 import scrapy
-from scrapy.loader.processors import Compose, MapCompose, TakeFirst
+from scrapy.loader.processors import Compose, TakeFirst
 
 
 def clean_strings(string_array):
@@ -19,3 +19,5 @@ class BookparserItem(scrapy.Item):
     img_urls = scrapy.Field()
     rate = scrapy.Field(input_processor=Compose(convert_to_float), output_processor=TakeFirst())
     annotation = scrapy.Field(input_processor=Compose(clean_strings), output_processor=TakeFirst())
+    author = scrapy.Field(input_processor=Compose(clean_strings), output_processor=TakeFirst())
+    params = scrapy.Field(input_processor=Compose(clean_strings))

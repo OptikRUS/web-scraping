@@ -12,7 +12,6 @@ class ChitaiSpider(scrapy.Spider):
     max_page_number = 30
 
     def parse(self, response: TextResponse, page_number: int = 1, **kwargs):
-        print()
         items = response.xpath('//a[@class="product-card__img js-analytic-productlink"]')
         for item in items:
             url = item.xpath("./@href").get()
@@ -23,26 +22,32 @@ class ChitaiSpider(scrapy.Spider):
             yield response.follow(next_url, callback=self.parse, cb_kwargs=new_kwargs)
 
     def parse_item(self, response: TextResponse):
-        print('parse item')
         title_xpath = '//h1[@itemprop ="name"]//text()'
         price_xpath = '//div[@class="price"]//text()'
         img_urls_xpath = '//meta[@itemprop="image"]/@content'
         annotation_xpath = '//div[@itemprop="description"]/text()'
         rate_xpath = '//span[@class="js__rating_count"]/text()'
+        author_xpath = '//a[@class="link product__author"]/text()'
+        params_xpath = '//div[@class="product-prop"]/div/text()[last()]'
+
+        params_keys_xpath = '//div[@class="product-prop"]/div[@class="product-prop__title"]/text()'
+        params_values_xpath = '//div[@class="product-prop"]/div[@class="product-prop__value"]'
 
         title = response.xpath(title_xpath).get()
         rate = response.xpath(rate_xpath).get()
         price = response.xpath(price_xpath).getall()
         annotation = response.xpath(annotation_xpath).get()
+        author = response.xpath(author_xpath).get()
 
         loader = ItemLoader(item=BookparserItem(), response=response)
 
         loader.add_value("url", response.url)
         loader.add_value("title", title)
+        loader.add_value("author", author)
         loader.add_value("rate", rate)
         loader.add_value("annotation", annotation)
         loader.add_value("price", price)
         loader.add_xpath("img_urls", img_urls_xpath)
+        loader.add_xpath("params", params_xpath)
 
-        print()
         yield loader.load_item()

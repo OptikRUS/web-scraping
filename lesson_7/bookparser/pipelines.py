@@ -17,18 +17,25 @@ class BookparserPipeline:
     def process_price(self, price: str):
         if price:
             only_num = price[:price.rfind(' ')]
-            return int(only_num)
+            return float(only_num)
         else:
             return None
 
+    def process_params(self, params: list) -> dict:
+        res = {}
+        for i in range(0, len(params) + 1, 2):
+            try:
+                res[params[i]] = params[i+1]
+            except IndexError:
+                pass
+        return res
+
     def process_item(self, item, spider):
-        print('PROCESS item')
+        item['params'] = self.process_params(item['params'])
         item['price'] = self.process_price(item['price'])
-        print(item)
-        print()
         collection = self.db[spider.name]
         collection.update_one(item, {"$set": item}, upsert=True)
-        print(collection)
+        item['site'] = spider.name
         return item
 
 

@@ -47,9 +47,9 @@ DEFAULT_REQUEST_HEADERS = {
 }
 
 IMAGES_STORE = "images"
-IMAGES_THUMBS = {
-    "normal": (450, 700),
-}
+# IMAGES_THUMBS = {
+#     "normal": (450, 700),
+# }
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
