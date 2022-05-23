@@ -28,6 +28,7 @@ class BookparserPipeline:
                 res[params[i]] = params[i+1]
             except IndexError:
                 pass
+            continue
         return res
 
     def process_item(self, item, spider):
