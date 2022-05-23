@@ -1,5 +1,5 @@
-from productparser.spiders.lerua import LeruaSpider
-from productparser import settings
+from bookparser.spiders.chitai import ChitaiSpider
+from bookparser import settings
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
@@ -11,6 +11,6 @@ if __name__ == "__main__":
 
     process = CrawlerProcess(settings=crawler_settings)
 
-    process.crawl(LeruaSpider)
+    process.crawl(ChitaiSpider)
 
     process.start()
