@@ -17,6 +17,7 @@ class BookparserItem(scrapy.Item):
     price = scrapy.Field(output_processor=TakeFirst())
     site = scrapy.Field()
     img_urls = scrapy.Field()
+    img_info = scrapy.Field()
     rate = scrapy.Field(input_processor=Compose(convert_to_float), output_processor=TakeFirst())
     annotation = scrapy.Field(input_processor=Compose(clean_strings), output_processor=TakeFirst())
     author = scrapy.Field(input_processor=Compose(clean_strings), output_processor=TakeFirst())

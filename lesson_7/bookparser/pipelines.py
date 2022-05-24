@@ -1,3 +1,6 @@
+import os
+from urllib.parse import urlparse
+
 import scrapy
 from scrapy.pipelines.images import ImagesPipeline
 
@@ -28,15 +31,14 @@ class BookparserPipeline:
                 res[params[i]] = params[i+1]
             except IndexError:
                 pass
-            continue
         return res
 
     def process_item(self, item, spider):
         item['params'] = self.process_params(item['params'])
         item['price'] = self.process_price(item['price'])
+        item['site'] = spider.name
         collection = self.db[spider.name]
         collection.update_one(item, {"$set": item}, upsert=True)
-        item['site'] = spider.name
         return item
 
 
@@ -48,3 +50,12 @@ class ProductparserImagesPipeline(ImagesPipeline):
                     yield scrapy.Request(img_url)
                 except Exception as e:
                     print(e)
+
+    def file_path(self, request, response=None, info=None, *, item=None):
+        return f"{item['title' ]}/" + os.path.basename(urlparse(request.url).path)
+
+    def item_completed(self, results, item, info):
+        if results:
+            item["img_info"] = [r[1] for r in results if r[0]]
+            del item["img_urls"]
+        return item
