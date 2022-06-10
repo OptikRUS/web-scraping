@@ -1,5 +1,5 @@
 import scrapy
-from scrapy.http import TextResponse, FormRequest
+from scrapy.http import TextResponse, FormRequest, Request
 from ..items import VcItem
 
 
@@ -8,7 +8,7 @@ class VcruSpider(scrapy.Spider):
     allowed_domains = ["vc.ru"]
     start_urls = ["https://vc.ru/"]
     login_url = "https://vc.ru/auth/simple/login"
-    users_id = ['980897', '1023408']
+    users_id = ['980897', '1023408', '857128', '1203588']  # id пользователей
     subscribers = "https://vc.ru/subsite/subscribers/"
     subscriptions = "https://vc.ru/subsite/subscriptions/"
 
@@ -48,18 +48,23 @@ class VcruSpider(scrapy.Spider):
 
         for user_id in self.users_id:
             yield response.follow(self.subscribers + user_id, callback=self.parse_subscribers)
+            yield response.follow(self.subscriptions + user_id, callback=self.parse_subscriptions)
 
     def parse_subscribers(self, response: TextResponse):
         print("SUBSCRIBERS")
         subscribers = response.json()['data']['items']
         print()
-        for subscriber in subscribers:
-            item = VcItem()
-            item['user'] = response.url.split('/')[-1]
-            item['user_id'] = subscriber['id']
-            item['name'] = subscriber['label']
-            item['url'] = subscriber['url']
-            item['img_url'] = subscriber['image']
-            yield item
-            print()
+        item = VcItem()
+        item['_id'] = int(response.url.split('/')[-1])
+        item['subscribers'] = subscribers
+        yield item
+        print()
 
+    def parse_subscriptions(self, response: TextResponse):
+        print('SUBSCRIPTIONS')
+        subscriptions = response.json()['data']['items']
+        item = VcItem()
+        item['_id'] = response.url.split('/')[-1]
+        item['subscriptions'] = subscriptions
+        yield item
+        print()
