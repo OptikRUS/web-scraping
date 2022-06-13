@@ -1,5 +1,5 @@
 import scrapy
-from scrapy.http import TextResponse, FormRequest, Request
+from scrapy.http import TextResponse, FormRequest
 from ..items import VcItem
 
 
@@ -21,7 +21,6 @@ class VcruSpider(scrapy.Spider):
         print("PARSE")
         version = response.xpath("//link[@rel='stylesheet'" " and contains(@href, 'vc-')]/@href").get()
         version = version.split("/")[-1].split(".")[1]
-        print()
         yield FormRequest(
             self.login_url,
             formdata={
@@ -41,7 +40,6 @@ class VcruSpider(scrapy.Spider):
 
     def parse_login(self, response: TextResponse):
         print("PARSE_LOGIN")
-        print()
         data = response.json()
         if data["rc"] != 200:
             raise ValueError(f"Something went wrong with login: {data['rm']}")
@@ -53,12 +51,10 @@ class VcruSpider(scrapy.Spider):
     def parse_subscribers(self, response: TextResponse):
         print("SUBSCRIBERS")
         subscribers = response.json()['data']['items']
-        print()
         item = VcItem()
         item['_id'] = int(response.url.split('/')[-1])
         item['subscribers'] = subscribers
         yield item
-        print()
 
     def parse_subscriptions(self, response: TextResponse):
         print('SUBSCRIPTIONS')
@@ -67,4 +63,3 @@ class VcruSpider(scrapy.Spider):
         item['_id'] = response.url.split('/')[-1]
         item['subscriptions'] = subscriptions
         yield item
-        print()
